@@ -12,38 +12,77 @@ import {
 } from "rollup-plugin-chrome-extension";
 import { emptyDir } from "rollup-plugin-empty-dir";
 
-const production = !process.env.ROLLUP_WATCH;
+export const isDev = process.env.NODE_ENV !== "production";
+const moduleExclude = (match) => {
+  const m = (id) => id.indexOf(match) > -1;
+  return {
+    name: `exclude-${match}`,
+    resolveId(id) {
+      if (m(id)) return id;
+    },
+    load(id) {
+      if (m(id)) return `export default {}`;
+    },
+  };
+};
 
 export default {
   input: "src/manifest.json",
   output: {
+    globals: {
+      // buffer: "Buffer",
+      "gun/gun": "Gun",
+      "gun/sea": "SEA",
+    },
+    external: [
+      "buffer",
+      "gun",
+      "gun/gun",
+      "gun/sea",
+      "gun/sea.js",
+      "gun/lib/then",
+      "gun/lib/webrtc",
+      "gun/lib/radix",
+      "gun/lib/radisk",
+      "gun/lib/store",
+      "gun/lib/rindexed",
+    ],
+    sourcemap: isDev ? "inline" : false,
     dir: "dist",
-    format: "esm",
+    format: "module",
   },
   plugins: [
     // always put chromeExtension() before other plugins
     chromeExtension(),
     simpleReloader(),
+    moduleExclude("text-encoding"),
     svelte({
       preprocess: sveltePreprocess(),
       compilerOptions: {
         // enable run-time checks when not in production
-        dev: !production,
+        dev: isDev,
       },
     }),
-    postcss({ minimize: production }),
-    // the plugins below are optional
+    postcss({ minimize: !isDev }),
     resolve({
       dedupe: ["svelte"],
+      browser: true,
+      preferBuiltins: false,
     }),
     // https://github.com/rollup/plugins/tree/master/packages/commonjs
-    commonjs(),
-    typescript({ sourceMap: false }),
+    commonjs({
+      dynamicRequireTargets: [
+        // include using a glob pattern (either a string or an array of strings)
+        // "node_modules/buffer/*.js",
+        // exclude files that are known to not be required dynamically, this allows for better optimizations
+      ],
+    }),
+    typescript({ sourceMap: isDev ? true : false }),
     // Empties the output dir before a new build
     emptyDir(),
     // If we're building for production, minify
-    production && terser(),
+    !isDev && terser(),
     // Outputs a zip file in ./releases
-    production && zip({ dir: "releases" }),
+    !isDev && zip({ dir: "releases" }),
   ],
 };

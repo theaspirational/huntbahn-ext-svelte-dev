@@ -3,7 +3,7 @@ import writableDerived from "svelte-writable-derived";
 
 var { stores, ready } = webextStorageAdapter(
   {
-    pair: {},
+    pair: null,
     username: "",
     candidate_name: "",
     candidate_url: "",

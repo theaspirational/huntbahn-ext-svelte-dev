@@ -1,6 +1,6 @@
 <script lang="ts">
   // import  { IGunUserInstance } from "gun/types";
-  import { gunUser } from "../initGun";
+  import { gunUser } from "./initGun";
 
   let username: string, password: string, message: string;
 

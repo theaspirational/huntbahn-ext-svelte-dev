@@ -4,9 +4,12 @@
   import Auth from "./Auth.svelte";
   import Home from "./Home.svelte";
 
-  import { gunUser } from "../initGun";
+  import { gunUser } from "./initGun";
   import db, { ready } from "../store";
   var { pair } = db;
+
+  // export let gun;
+  // export let gunUser;
 
   db.pair.subscribe((val) => {
     pair = val;

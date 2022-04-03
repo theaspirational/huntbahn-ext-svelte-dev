@@ -1,7 +1,7 @@
 <script lang="ts">
   import CandidateSVG from "./svg/Candidate.svelte";
   import db from "../store";
-  import { gunUser } from "../initGun";
+  import { gunUser } from "./initGun";
   var { username } = db;
 
   function Logout(e: Event) {
